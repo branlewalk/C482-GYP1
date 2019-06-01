@@ -1,7 +1,6 @@
 package javacourse;
 
 import javafx.application.Application;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,25 +14,24 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private static String modify = "Modify";
-    private static String add = "Add";
-    private static String delete = "Delete";
+    private String modify = "Modify";
+    private String add = "Add";
+    private String delete = "Delete";
+    private Inventory inventory = new Inventory();
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
 
-        Inventory inventory = new Inventory();
         Stage inventoryMgmtSystem;
         Scene mainScene;
         inventoryMgmtSystem = primaryStage;
-
 
         //layout of main scene
         Label mainTitle = new Label("Inventory Management System");
         mainTitle.setPrefSize(200, 100);
         mainTitle.setAlignment(Pos.BASELINE_LEFT);
-        VBox parts = Main.PartDisplay(inventory.getAllParts());
-        VBox products = Main.ProductDisplay(inventory.getAllProducts(), inventory.getAllParts());
+        VBox parts = PartDisplay();
+        VBox products = ProductDisplay();
         Button exitButton = new Button("Exit");
         exitButton.setOnAction(event -> inventoryMgmtSystem.close());
         BorderPane mainLayout = new BorderPane();
@@ -49,7 +47,7 @@ public class Main extends Application {
         inventoryMgmtSystem.show();
     }
 
-    public static VBox PartDisplay(ObservableList list) {
+    private VBox PartDisplay() {
 
         // Layout
         GridPane titleSearchBox = new GridPane();
@@ -72,7 +70,7 @@ public class Main extends Application {
         titleSearchBox.add(searchTextField, 3, 0);
 
         // Parts Table
-        TableView<Part> partTableView = new TableView<>(list);
+        TableView<Part> partTableView = new TableView<>(inventory.getAllParts());
         TableColumn<Part, String> id = new TableColumn<>("Part ID");
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
         partTableView.getColumns().add(id);
@@ -95,18 +93,23 @@ public class Main extends Application {
         addPartButton.setAlignment(Pos.BASELINE_CENTER);
         Button deletePartButton = new Button(delete);
         addPartButton.setAlignment(Pos.BASELINE_RIGHT);
-        addPartButton.setOnAction(event -> PartBox.display(add));
-        modifyPartButton.setOnAction(event -> PartBox.display(modify));
+        addPartButton.setOnAction(event -> {
+            PartStage partStage = new PartStage();
+            partStage.display(add, null, inventory);
+        });
+        modifyPartButton.setOnAction(event -> {
+            PartStage partStage = new PartStage();
+            partStage.display(modify, partTableView.getSelectionModel().getSelectedItem(), inventory);
+        });
 
         // Initialize Layout
-   //     titleSearchBox.getChildren().addAll(partsTitle, searchButton, searchTextField);
         buttonBox.getChildren().addAll(addPartButton, modifyPartButton, deletePartButton);
         partBox.getChildren().addAll(titleSearchBox, partTableView, buttonBox);
 
         return partBox;
     }
 
-    public static VBox ProductDisplay(ObservableList productList, ObservableList partList) {
+    private VBox ProductDisplay() {
 
         // Layout
         GridPane titleSearchGrid = new GridPane();
@@ -129,7 +132,7 @@ public class Main extends Application {
         titleSearchGrid.add(searchTextField, 3, 0);
 
         // Table for Products
-        TableView<Product> productTableView = new TableView<>(productList);
+        TableView<Product> productTableView = new TableView<>(inventory.getAllProducts());
         TableColumn<Product, String> id = new TableColumn<>("Product ID");
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
         productTableView.getColumns().add(id);
@@ -152,11 +155,16 @@ public class Main extends Application {
         addPartButton.setAlignment(Pos.BASELINE_CENTER);
         Button deletePartButton = new Button(delete);
         addPartButton.setAlignment(Pos.BASELINE_RIGHT);
-        addPartButton.setOnAction(event -> ProductBox.display(add, partList));
-        modifyPartButton.setOnAction(event -> ProductBox.display(modify, partList));
+        addPartButton.setOnAction(event -> {
+            ProductStage productStage = new ProductStage();
+            productStage.display(add, null, inventory);
+        });
+        modifyPartButton.setOnAction(event -> {
+            ProductStage productStage = new ProductStage();
+            productStage.display(add, productTableView.getSelectionModel().getSelectedItem(), inventory);
+        });
 
         // Initialize Layout
-   //     titleSearchGrid.getChildren().addAll(productTitle, searchButton, searchTextField);
         buttonBox.getChildren().addAll(addPartButton, modifyPartButton, deletePartButton);
         productBox.getChildren().addAll(titleSearchGrid, productTableView, buttonBox);
 

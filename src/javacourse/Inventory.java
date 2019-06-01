@@ -7,8 +7,10 @@ public class Inventory {
 
     private ObservableList<Part> allParts = FXCollections.observableArrayList();
     private ObservableList<Product> allProducts = FXCollections.observableArrayList();
+    private int partID;
+    private int productID;
 
-    public void addPart(Part part) {
+    void addPart(Part part) {
         allParts.add(part);
     }
 
@@ -40,15 +42,21 @@ public class Inventory {
     }
 
     public ObservableList<Product> lookupProduct(String productName) {
-        return allProducts;
+        ObservableList<Product> matchedPart = FXCollections.observableArrayList();
+        for (Product product : allProducts) {
+            if (product.getName().equals(productName)) {
+                matchedPart.add(product);
+            }
+        }
+        return matchedPart;
     }
 
-    public void updatePart(int index, Part part) {
-
+    void updatePart(int index, Part part) {
+        allParts.set(index, part);
     }
 
     public void updateProduct(int index, Product product) {
-
+        allProducts.set(index, product);
     }
 
     public void deletePart(Part part) {
@@ -59,12 +67,24 @@ public class Inventory {
         allProducts.remove(product);
     }
 
-    public ObservableList<Part> getAllParts() {
+    ObservableList<Part> getAllParts() {
         return allParts;
     }
 
-    public ObservableList<Product> getAllProducts() {
+    ObservableList<Product> getAllProducts() {
         return allProducts;
     }
 
+    int IDGenerator(String type) {
+        switch (type) {
+            case "Part":
+                partID++;
+                return partID;
+            case "Product":
+                productID++;
+                return productID;
+            default:
+                return 1;
+        }
+    }
 }

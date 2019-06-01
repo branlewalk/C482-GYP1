@@ -11,9 +11,9 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class ProductBox {
+class ProductStage {
 
-    public static void display(String type, ObservableList partList) {
+    void display(String type, Product product, Inventory inventory) {
         Stage productStage = new Stage();
         productStage.initModality(Modality.APPLICATION_MODAL);
         productStage.setTitle(type + " Product");
@@ -29,8 +29,6 @@ public class ProductBox {
         Button addPartButton = new Button("Add");
         Button deletePartButton = new Button("Delete");
 
-
-
         // Labels for text fields
         Label productTitle = new Label(type + " Product");
         Label idLabel = new Label("ID:");
@@ -39,7 +37,6 @@ public class ProductBox {
         Label priceLabel = new Label("Price/Cost");
         Label maxLabel = new Label("Max:");
         Label minLabel = new Label("Min:");
-
 
         // Text fields to extract data for products
         TextField idField = new TextField("Auto Gen - Disabled");
@@ -56,6 +53,8 @@ public class ProductBox {
         minField.setPromptText("Min");
         TextField searchPartField = new TextField();
         searchPartField.setPromptText("Search Part");
+
+
 
         // Search Parts Table
         ObservableList searchPartList = FXCollections.observableArrayList();
@@ -75,8 +74,17 @@ public class ProductBox {
         searchPartTableView.setPrefWidth(450);
         searchPartTableView.setPrefHeight(300);
 
-        //Current Parts Table
-        TableView<Part> partTableView = new TableView<>(partList);
+//        // Search Button
+//        searchPartButton.setOnAction(event -> searchPartList = inventory.lookupProduct(searchPartField.getText()));
+//
+//        // Add Button
+//        addPartButton.setOnAction(event -> {
+//
+//        });
+
+
+        ObservableList associatedPartList = FXCollections.observableArrayList();
+        TableView<Part> partTableView = new TableView<>(associatedPartList);
         TableColumn<Part, String> id = new TableColumn<>("Part ID");
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
         partTableView.getColumns().add(id);
@@ -91,7 +99,6 @@ public class ProductBox {
         partTableView.getColumns().add(price);
         partTableView.setPrefWidth(450);
         partTableView.setPrefHeight(300);
-
 
         // Grid Layout for Label, Text Fields, Tables and Buttons
         GridPane productGrid = new GridPane();
@@ -131,7 +138,6 @@ public class ProductBox {
         Scene partScene = new Scene(productGrid, 650, 375);
         productStage.setScene(partScene);
         productStage.showAndWait();
-
     }
 
 }

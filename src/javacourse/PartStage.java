@@ -8,17 +8,17 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class PartBox {
+class PartStage {
 
-    public static void display(String type) {
+    void display(String type, Part part, Inventory inventory) {
         Stage partStage = new Stage();
         partStage.initModality(Modality.APPLICATION_MODAL);
         partStage.setTitle(type + " Part");
 
+
         // Buttons
         Button saveButton = new Button("Save");
         saveButton.setAlignment(Pos.CENTER_LEFT);
-        saveButton.setOnAction(event -> partStage.close());
         Button cancelButton = new Button("Cancel");
         cancelButton.setAlignment(Pos.CENTER_RIGHT);
         cancelButton.setOnAction(event -> partStage.close());
@@ -49,6 +49,20 @@ public class PartBox {
         TextField inOutField = new TextField();
         inOutField.setPromptText("Machine ID");
 
+        if (type.equals("Modify")) {
+            idField.setText(Integer.toString(part.getId()));
+            nameField.setText(part.getName());
+            invField.setText(Integer.toString(part.getStock()));
+            priceField.setText(Double.toString(part.getPrice()));
+            maxField.setText(Integer.toString(part.getMax()));
+            minField.setText(Integer.toString(part.getMin()));
+            if(part instanceof InHouse) {
+                inOutField.setText(Integer.toString(((InHouse) part).getMachineId()));
+            } else if (part instanceof Outsourced) {
+                inOutField.setText(((Outsourced) part).getCompanyName());
+            }
+        }
+
         //Check boxes for in house and Outsourced
         ToggleGroup inOutToggle = new ToggleGroup();
         RadioButton inHouse = new RadioButton("In-House");
@@ -63,6 +77,40 @@ public class PartBox {
         outSourced.setOnAction(event -> {
             inOutLabel.setText("Company Name:");
             inOutField.setPromptText("Company Name");
+        });
+
+        saveButton.setOnAction(event -> {
+            int id;
+            if (type.equals("Modify")) {
+                id = Integer.parseInt(idField.getText());
+            } else {
+                id = inventory.IDGenerator("Part");
+            }
+            String name = nameField.getText();
+            int inv = Integer.parseInt(invField.getText());
+            double price = Double.parseDouble(priceField.getText());
+            int min = Integer.parseInt(minField.getText());
+            int max = Integer.parseInt(maxField.getText());
+            if (type.equals("Add")) {
+                if (inHouse.isSelected()) {
+                    int machineID = Integer.parseInt(inOutField.getText());
+                    inventory.addPart(new InHouse(id, name, price, inv, min, max, machineID));
+                } else if(outSourced.isSelected()) {
+                    String companyName = inOutField.getText();
+                    inventory.addPart(new Outsourced(id, name, price, inv, min, max, companyName));
+                }
+            } else if (type.equals("Modify")) {
+                int index = inventory.getAllParts().indexOf(part);
+                if (inHouse.isSelected()) {
+                    int machineID = Integer.parseInt(inOutField.getText());
+                    inventory.updatePart(index, new InHouse(id, name, price, inv, min, max, machineID));
+                } else if(outSourced.isSelected()) {
+                    String companyName = inOutField.getText();
+                    inventory.updatePart(index, new Outsourced(id, name, price, inv, min, max, companyName));
+                }
+            }
+
+            partStage.close();
         });
 
         // Grid Layout for Label, Text Fields and Buttons
@@ -98,9 +146,9 @@ public class PartBox {
         GridPane.setConstraints(saveButton, 3,7);
         GridPane.setConstraints(cancelButton, 4,7);
 
-        partGrid.getChildren().addAll(partTitle, inHouse, outSourced, idField, idLabel, nameField, nameLabel, invField, invLabel,
-                priceField, priceLabel, maxField, maxLabel, minField, minLabel, inOutField, inOutLabel, saveButton,
-                cancelButton);
+        partGrid.getChildren().addAll(partTitle, inHouse, outSourced, idField, idLabel, nameField,
+                nameLabel, invField, invLabel, priceField, priceLabel, maxField, maxLabel, minField,
+                minLabel, inOutField, inOutLabel, saveButton, cancelButton);
         Scene partScene = new Scene(partGrid, 650, 375);
 
         partStage.setScene(partScene);
